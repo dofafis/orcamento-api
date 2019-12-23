@@ -14,3 +14,8 @@ Ferramentas utilizadas:
 - Express 4.x (Framework Nodejs)
 - MySQL (Banco de dados relacional)
 - Sequelize (ORM para conectar a API ao banco e executar consultas)
+
+Modelo banco:
+- usuario (uuid, nome, cpf, data_nascimento, email, senha, data_hora, ativo)
+- despesa_renda (uuid_usuario, uuid_categoria, descricao, valor, tipo, data_hora)
+- categoria (uuid, nome, descricao, uuid_usuario)

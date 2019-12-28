@@ -21,6 +21,7 @@ const usuarioService = {
             })
     },
     retornar: function(req, res) {
+
         usuario.findAll({
             where: {
                 [Op.or]: [
@@ -55,9 +56,12 @@ const usuarioService = {
                 message: error.name
             }))
         })
+
     },
     alterar: function(req, res) {
+
         res.end('Alterar usuario especificado')
+
     },
     deletar: function(req, res) {
         res.end('Deletar usuario especificado')

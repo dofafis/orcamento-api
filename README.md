@@ -1,3 +1,4 @@
+**EM CONSTRUÇAO**
 Uma API REST para um sistema de controle de finanças pessoais. A API deve possibilitar as seguintes açoes:
 
 - Cadastro e Login

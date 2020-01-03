@@ -59,7 +59,37 @@ const usuarioService = {
 
     },
     alterar: function(req, res) {
-        
+        usuario.findOne({
+            where: {
+                [Op.or]: [
+                    {
+                        cpf: { 
+                            [Op.eq]: req.body.cpf 
+                        }
+                    },
+                    {
+                        uuid: { 
+                            [Op.eq]: req.body.uuid 
+                        }
+                    },
+                    {
+                        email: { 
+                            [Op.eq]: req.body.email 
+                        }
+                    }
+                ]
+            }
+        })
+        .then(function(usuarioRegistrado){
+            console.log(usuarioRegistrado)
+        })
+        .catch(function(error) {
+            res.end(JSON.stringify({
+                status: 500,
+                message: error.name
+            }))
+        })
+
         res.end('Alterar usuario especificado')
 
     },
@@ -90,15 +120,21 @@ const usuarioService = {
         })
         .then(function(affectedRows) {
             if(affectedRows === 1)
-                res.end({status: 200, message: 'Usuario excluido com sucesso'})
+                res.end(JSON.stringify({
+                    status: 200, 
+                    message: 'Usuario excluido com sucesso'
+                }))
             else
-                res.end({status: 400, message: 'O usuario que deseja excluir nao existe na base de dados'})
+                res.end(JSON.stringify({
+                    status: 400, 
+                    message: 'O usuario que deseja excluir nao existe na base de dados'
+                }))
         })
         .catch(function(error) {
-            res.end({
+            res.end(JSON.stringify({
                 status: 500,
                 message: error.name
-            })
+            }))
         })
     },
     login: function(req, res) {

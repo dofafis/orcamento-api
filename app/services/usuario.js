@@ -1,11 +1,39 @@
 const { usuario } = require('../models')
 const Op = require('sequelize').Op
+const transporter = require('../mailer')
+const myCache = require('../cache')
+const crypto = require('crypto')
 
 const usuarioService = {
     cadastrar: async function(req, res) {
         usuario.create(req.body)
             .then(function (usuarioCadastrado) {
-                res.end(JSON.stringify(usuarioCadastrado))
+
+                crypto.randomBytes(30, function(err, buffer) {
+                    if(!err) {
+                        var code = buffer.toString('hex')
+                        
+                        myCache.set(code, usuarioCadastrado.uuid, 86400)
+
+                        const mailOptions = {
+                            from: 'programandotododia@gmail.com', // sender address
+                            to: 'oliveirafarias.lucas@gmail.com', // list of receivers
+                            subject: 'Confirmaçao de email', // Subject line
+                            html: '<h3>Copie este codigo <bold>' + code + '</bold> na tela de cadastro ou tente logar e o codigo sera solicitado</h3>'// plain text body
+                        }
+
+                        transporter.sendMail(mailOptions, function(err, info) {
+                            if(err)
+                                console.log(err)
+                            else
+                                res.end(JSON.stringify(usuarioCadastrado))
+                        })
+        
+
+                    }
+                })
+
+
             })
             .catch(function (error) {
                 if(error.name === 'SequelizeUniqueConstraintError')
@@ -58,8 +86,16 @@ const usuarioService = {
         })
 
     },
-    alterar: function(req, res) {
-        usuario.findOne({
+    alterarDadosNaoSensiveis: function(req, res) {
+        
+        let nonSensitiveFields = ['nome', 'data_nascimento', 'ativo']
+        let updates = {}
+        nonSensitiveFields.forEach(field => {
+            if(typeof(req.body[field]) !== 'undefined')
+                updates[field] = req.body[field]
+        })
+
+        usuario.update(updates, {
             where: {
                 [Op.or]: [
                     {
@@ -80,17 +116,23 @@ const usuarioService = {
                 ]
             }
         })
-        .then(function(usuarioRegistrado){
-            console.log(usuarioRegistrado)
-        })
-        .catch(function(error) {
-            res.end(JSON.stringify({
-                status: 500,
-                message: error.name
-            }))
-        })
-
-        res.end('Alterar usuario especificado')
+            .then(
+                result => {
+                    if(result[0] === 1)
+                        res.end(JSON.stringify({
+                            status: 200,
+                            message: 'Usuario alterado com sucesso'
+                        }))
+                }
+            )
+            .catch(
+                error => {
+                    res.end(JSON.stringify({
+                        status: 500,
+                        message: error.name
+                    }))
+                }
+            )
 
     },
     deletar: function(req, res) {
@@ -112,10 +154,7 @@ const usuarioService = {
                             [Op.eq]: req.params.identifier 
                         }
                     }
-                ],
-                ativo: {
-                    [Op.eq]: true
-                }
+                ]
             }
         })
         .then(function(affectedRows) {
@@ -139,6 +178,36 @@ const usuarioService = {
     },
     login: function(req, res) {
         res.end('Logar usuario')
+    },
+    ativarConta: function(req, res) {
+        usuario.update({ ativo: true }, {
+            where: {
+                [Op.or]: [
+                    {
+                        uuid: { 
+                            [Op.eq]: myCache.get(req.params.code) 
+                        }
+                    }
+                ]
+            }
+        })
+            .then(
+                result => {
+                    if(result[0] === 1)
+                        res.end(JSON.stringify({
+                            status: 200,
+                            message: 'Usuario ativado com sucesso'
+                        }))
+                }
+            )
+            .catch(
+                error => {
+                    res.end(JSON.stringify({
+                        status: 500,
+                        message: error.name
+                    }))
+                }
+            )
     }
 }
 

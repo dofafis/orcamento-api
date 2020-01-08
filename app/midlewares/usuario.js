@@ -1,5 +1,6 @@
 const crypto = require('crypto')
 const uuid = require('uuid')
+const myCache = require('../cache')
 
 const usuarioMidlewares = {
     validarPost: function(req, res, next) {
@@ -24,8 +25,10 @@ const usuarioMidlewares = {
                 status: 400,
                 message: 'Os campos nome, cpf, data_nascimento, email, senha e ativo sao obrigatorios'
             }))
-        else
+        else{
+            req.body.ativo = false
             next()
+        }
     },
 
     encriptarSenha: function(req, res, next) {
@@ -39,7 +42,46 @@ const usuarioMidlewares = {
     criarUUID: function(req, res, next) {
         req.body.uuid = uuid.v1()
         next()
+    },
+    validarPut: function(req, res, next) {
+        if(typeof(req.body.cpf) === 'undefined' && typeof(req.body.uuid) === 'undefined' && typeof(req.body.email) === 'undefined')
+            res.end(JSON.stringify({
+                status: 400,
+                message: 'E obrigatorio a presenca de um dos seguintes atributos: uuid, cpf, email'
+            }))
+        else {
+            let sensitiveFields = ['senha', 'data_hora']
+            let thereAreSensitiveFields = false
+            sensitiveFields.forEach(field => {
+                if(typeof(req.body[field]) !== 'undefined')
+                    thereAreSensitiveFields = true
+            })
+    
+            if(thereAreSensitiveFields)
+                res.end(JSON.stringify({
+                    status: 400,
+                    message: 'Esta rota altera apenas os campos: nome, data_nascimento e ativo, verifique a documentaçao para rotas de alteracao de senha, email e ou cpf'
+                }))
+            else
+                next()
+        }
+
+    },
+    validarAtivacaoDeConta: function(req, res, next) {
+        if(typeof(req.params.code) === 'undefined')
+            res.end(JSON.stringify({
+                status: 400,
+                message: 'O parametro \'code\' e obrigatorio'
+            }))
+        else if(typeof(myCache.get(req.params.code)) === 'undefined')
+            res.end(JSON.stringify({
+                status: 400,
+                message: 'O parametro \'code\' nao e valido'
+            }))
+        else
+            next()
     }
+
 }
 
 module.exports = usuarioMidlewares

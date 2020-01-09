@@ -138,17 +138,18 @@ const usuarioMidlewares = {
                 status: 400,
                 message: 'E obrigatorio o envio de um access_token'
             }))
-
-        let decoded = jwt.decode(token, environment.API_SECRET)
-
-        if((Date.now() - decoded.exp) > 3600000)
-            res.end(JSON.stringify({
-                status: 400,
-                message:'O access_token expirou, nao e mais valido'
-            }))
         else {
-            req.user = decoded.uuid
-            next()
+            let decoded = jwt.decode(token, environment.API_SECRET)
+    
+            if((Date.now() - decoded.exp) > 3600000)
+                res.end(JSON.stringify({
+                    status: 400,
+                    message:'O access_token expirou, nao e mais valido'
+                }))
+            else {
+                req.user = decoded.uuid
+                next()
+            }
         }
     },
     autorizar: function(req, res, next) {

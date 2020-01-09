@@ -14,7 +14,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
         timestamps: false
-    });
-  
+    },
+    {
+        associate: function(models) {
+            usuario.hasMany(models.categoria, {onDelete: 'cascade', hooks: true})
+        }
+    })
     return usuario;
 }

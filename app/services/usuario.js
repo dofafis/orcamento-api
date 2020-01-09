@@ -1,4 +1,5 @@
 const { usuario } = require('../models')
+const { categoria } = require('../models')
 const Op = require('sequelize').Op
 const transporter = require('../mailer')
 const myCache = require('../cache')

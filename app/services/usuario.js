@@ -3,6 +3,9 @@ const Op = require('sequelize').Op
 const transporter = require('../mailer')
 const myCache = require('../cache')
 const crypto = require('crypto')
+const jwt = require('jwt-simple')
+const environment = require('../../config/environment')
+
 
 const usuarioService = {
     cadastrar: async function(req, res) {
@@ -19,7 +22,7 @@ const usuarioService = {
                             from: 'programandotododia@gmail.com', // sender address
                             to: 'oliveirafarias.lucas@gmail.com', // list of receivers
                             subject: 'Confirmaçao de email', // Subject line
-                            html: '<h3>Copie este codigo <bold>' + code + '</bold> na tela de cadastro ou tente logar e o codigo sera solicitado</h3>'// plain text body
+                            html: '<p style="font-size: larger;">Copie este codigo <bold>' + code + '</bold> na tela de cadastro ou tente logar e o codigo sera solicitado</p>'// plain text body
                         }
 
                         transporter.sendMail(mailOptions, function(err, info) {
@@ -116,24 +119,69 @@ const usuarioService = {
                 ]
             }
         })
-            .then(
-                result => {
-                    if(result[0] === 1)
-                        res.end(JSON.stringify({
-                            status: 200,
-                            message: 'Usuario alterado com sucesso'
-                        }))
-                }
-            )
-            .catch(
-                error => {
+        .then(
+            result => {
+                if(result[0] === 1)
                     res.end(JSON.stringify({
-                        status: 500,
-                        message: error.name
+                        status: 200,
+                        message: 'Usuario alterado com sucesso'
                     }))
-                }
-            )
+            }
+        )
+        .catch(
+            error => {
+                res.end(JSON.stringify({
+                    status: 500,
+                    message: error.name
+                }))
+            }
+        )
 
+    },
+    alterarSenha: function(req, res) {
+        usuario.update({ senha: req.body.senha }, {
+            where: {
+                [Op.or]: [
+                    {
+                        cpf: { 
+                            [Op.eq]: req.body.cpf 
+                        }
+                    },
+                    {
+                        uuid: { 
+                            [Op.eq]: req.body.uuid 
+                        }
+                    },
+                    {
+                        email: { 
+                            [Op.eq]: req.body.email 
+                        }
+                    }
+                ]
+            }
+        })
+        .then(
+            result => {
+                if(result[0] === 1)
+                    res.end(JSON.stringify({
+                        status: 200,
+                        message: 'Senha alterada com sucesso'
+                    }))
+                else   
+                    res.end(JSON.stringify({
+                        status: 400,
+                        message: 'O usuario que deseja alterar a senha nao existe na base de dados'
+                    }))
+            }
+        )
+        .catch(
+            error => {
+                res.end(JSON.stringify({
+                    status: 500,
+                    message: error.name
+                }))
+            }
+        )
     },
     deletar: function(req, res) {
         usuario.destroy({
@@ -177,7 +225,65 @@ const usuarioService = {
         })
     },
     login: function(req, res) {
-        res.end('Logar usuario')
+        
+        usuario.findAll({
+            where: {
+                [Op.or]: [
+                    {
+                        cpf: { 
+                            [Op.eq]: req.body.cpf 
+                        }
+                    },
+                    {
+                        uuid: { 
+                            [Op.eq]: req.body.uuid 
+                        }
+                    },
+                    {
+                        email: { 
+                            [Op.eq]: req.body.email 
+                        }
+                    }
+                ],
+                ativo: {
+                    [Op.eq]: true
+                }
+            }
+        })
+        .then(function (usuarios) {
+            if(usuarios.length === 0) 
+                res.end(JSON.stringify({ 
+                    status: 400, 
+                    message: 'Usuario nao encontrado, verifique as informaçoes e tente novamente'
+                }))
+            else {
+                usuarioRegistrado = usuarios[0]
+                if(usuarioRegistrado.senha === req.body.senha) {
+                    let token = jwt.encode({
+                        uuid: usuarioRegistrado.uuid,
+                        exp: Date.now()
+                    }, environment.API_SECRET)
+
+                    res.end(JSON.stringify({
+                        status: 200,
+                        access_token: token
+                    }))
+                } else
+                    res.end(JSON.stringify({
+                        status: 400,
+                        message: "Senha incorreta"
+                    }))
+            }
+            
+        })
+        .catch(function (error) {
+            res.end(JSON.stringify({
+                status: 500,
+                message: error.name
+            }))
+        })
+
+
     },
     ativarConta: function(req, res) {
         usuario.update({ ativo: true }, {
@@ -191,23 +297,29 @@ const usuarioService = {
                 ]
             }
         })
-            .then(
-                result => {
-                    if(result[0] === 1)
-                        res.end(JSON.stringify({
-                            status: 200,
-                            message: 'Usuario ativado com sucesso'
-                        }))
-                }
-            )
-            .catch(
-                error => {
+        .then(
+            result => {
+                if(result[0] === 1)
                     res.end(JSON.stringify({
-                        status: 500,
-                        message: error.name
+                        status: 200,
+                        message: 'Usuario ativado com sucesso'
                     }))
-                }
-            )
+                else   
+                    res.end(JSON.stringify({
+                        status: 400,
+                        message: 'O usuario que deseja ativar nao existe no banco de dados'
+                    }))
+            }
+        )
+        .catch(
+            error => {
+                res.end(JSON.stringify({
+                    status: 500,
+                    message: error.name
+                }))
+            }
+        )
+
     }
 }
 

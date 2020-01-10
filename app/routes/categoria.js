@@ -1,6 +1,7 @@
 const Router = require('express').Router()
-const service = require('../services/usuario')
-const middlewares = require('../middlewares/usuario')
+const service = require('../services/categoria')
+const usuarioMiddlewares = require('../middlewares/usuario')
+const categoriaMiddlewares = require('../middlewares/categoria')
 
 Router.route('/')
     .post([middlewares.validarPost, middlewares.encriptarSenha, middlewares.criarUUID], service.cadastrar)

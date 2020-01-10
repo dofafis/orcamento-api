@@ -8,7 +8,7 @@ const Op = require('sequelize').Op
 
 const validarCpf = require('validar-cpf')
 
-const usuarioMidlewares = {
+const usuarioMiddlewares = {
     validarPost: function(req, res, next) {
         var usuario = req.body
 
@@ -195,4 +195,4 @@ const usuarioMidlewares = {
     }
 }
 
-module.exports = usuarioMidlewares
+module.exports = usuarioMiddlewares

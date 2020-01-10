@@ -1,4 +1,4 @@
-// categoria (uuid, nome, descricao, uuid_usuario)
+// categoria (uuid, nome, descricao, limite, uuid_usuario)
 module.exports = (sequelize, DataTypes) => {
     const categoria = sequelize.define('categoria', {
         uuid: {
@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         }, 
         nome: DataTypes.STRING,
         descricao: DataTypes.STRING,
+        limite: DataTypes.INTEGER,
         uuid_usuario: {
             type: DataTypes.UUID,
             references: {
@@ -16,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
         }
     },
     {
-        timestamps: false
+        timestamps: false,
+        freezeTableName: true
     });
   
     return categoria;

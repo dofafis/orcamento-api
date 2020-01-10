@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
         ativo: DataTypes.BOOLEAN,
     },
     {
-        timestamps: false
+        timestamps: false,
+        freezeTableName: true
     },
     {
         associate: function(models) {

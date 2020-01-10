@@ -4,20 +4,13 @@ const usuarioMiddlewares = require('../middlewares/usuario')
 const categoriaMiddlewares = require('../middlewares/categoria')
 
 Router.route('/')
-    .post([middlewares.validarPost, middlewares.encriptarSenha, middlewares.criarUUID], service.cadastrar)
-    .put([middlewares.validarPut, middlewares.autenticar, middlewares.autorizar], service.alterarDadosNaoSensiveis)
-    
-Router.route('/ativar-conta/:code')
-    .put([middlewares.validarAtivacaoDeConta], service.ativarConta)
+    .post([categoriaMiddlewares.validarPost, usuarioMiddlewares.autenticar, usuarioMiddlewares.autorizar, categoriaMiddlewares.criarUUID], service.cadastrar)
+    .put([categoriaMiddlewares.validarPut, usuarioMiddlewares.autenticar, usuarioMiddlewares.autorizar], service.alterar)
 
-Router.route('/alterar-senha')
-    .post([middlewares.validarAlteracaoSenha, middlewares.encriptarSenha, middlewares.autenticar, middlewares.autorizar], service.alterarSenha)
+Router.route('/procurar-por-usuario/:uuid_usuario')
+    .get([usuarioMiddlewares.autenticar, usuarioMiddlewares.autorizar], service.retornarPorUsuarioUUID)
 
-Router.route('/:identifier')
-    .get([middlewares.autenticar, middlewares.autorizar], service.retornar)
-    .delete([middlewares.autenticar, middlewares.autorizar], service.deletar)
-
-Router.route('/login')
-    .post([middlewares.validarLogin, middlewares.encriptarSenha], service.login)
-
+Router.route('/:uuid')
+    .get([usuarioMiddlewares.autenticar, categoriaMiddlewares.autorizar], service.retornarPorUUID)
+    .delete([usuarioMiddlewares.autenticar, categoriaMiddlewares.autorizar], service.deletar)
 module.exports = Router

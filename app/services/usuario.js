@@ -9,7 +9,7 @@ const environment = require('../../config/environment')
 
 
 const usuarioService = {
-    cadastrar: async function(req, res) {
+    cadastrar: function(req, res) {
         usuario.create(req.body)
             .then(function (usuarioCadastrado) {
 

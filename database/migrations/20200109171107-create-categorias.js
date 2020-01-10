@@ -9,7 +9,7 @@ module.exports = {
       Example:
       return queryInterface.createTable('users', { id: Sequelize.INTEGER });
     */
-    return queryInterface.createTable('categorias', {
+    return queryInterface.createTable('categoria', {
       uuid : {
         allowNull: false,
         primaryKey: true,
@@ -24,13 +24,17 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true,
       },
+      limite : {
+        allowNull: false,
+        type: Sequelize.INTEGER  
+      },
       uuid_usuario : {
         allowNull: false,
         type: Sequelize.UUID,
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
         references: {
-          model: 'usuarios',
+          model: 'usuario',
           key: 'uuid'
         }
       }
@@ -45,6 +49,6 @@ module.exports = {
       Example:
       return queryInterface.dropTable('users');
     */
-   return queryInterface.dropTable('categorias')    
+   return queryInterface.dropTable('categoria')    
   }
 };

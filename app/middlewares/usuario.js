@@ -160,7 +160,7 @@ const usuarioMiddlewares = {
                         cpf: [req.params.identifier, req.body.cpf] 
                     },
                     {
-                        uuid: [req.params.identifier, req.body.uuid]
+                        uuid: [req.params.identifier, req.body.uuid, req.body.uuid_usuario, req.params.uuid_usuario]
                     },
                     {
                         email: [req.params.identifier, req.body.email] 

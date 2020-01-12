@@ -79,7 +79,13 @@ const usuarioService = {
             }
         })
         .then(function (usuarios) {
-            usuarios = usuarios.length === 0 ? { status: 400, message: 'Usuario nao encontrado, verifique as informaçoes e tente novamente'} : usuarios[0]
+            usuarios = usuarios.length === 0 ? { 
+                status: 400, 
+                message: 'Usuario nao encontrado, verifique as informaçoes e tente novamente'
+            } : usuarios[0];
+
+            if(typeof(usuarios.senha) !== 'undefined')
+                usuarios.senha = '';
             res.end(JSON.stringify(usuarios))
         })
         .catch(function (error) {

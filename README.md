@@ -18,5 +18,5 @@ Ferramentas utilizadas:
 
 Modelo banco:
 - usuario (uuid, nome, cpf, data_nascimento, email, senha, data_hora, ativo)
-- despesa_renda (uuid_usuario, uuid_categoria, descricao, valor, tipo, data_hora)
+- transacao  (uuid, uuid_usuario, uuid_categoria, descricao, valor, tipo, data_hora)
 - categoria (uuid, nome, descricao, uuid_usuario)

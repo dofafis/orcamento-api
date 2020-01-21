@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     {
         associate: function(models) {
             usuario.hasMany(models.categoria, {onDelete: 'cascade', hooks: true})
+            usuario.hasMany(models.transacao, {onDelete: 'cascade', hooks: true})
         }
     })
     return usuario;

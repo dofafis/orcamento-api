@@ -19,6 +19,11 @@ module.exports = (sequelize, DataTypes) => {
     {
         timestamps: false,
         freezeTableName: true
+    },
+    {
+        associate: function(models) {
+            categoria.hasMany(models.transacao, {onDelete: 'cascade', hooks: true})
+        }
     });
   
     return categoria;
